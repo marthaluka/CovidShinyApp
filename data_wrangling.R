@@ -2,11 +2,11 @@
 
 #rm(list=ls())
 #packages####
-pacman::p_load(dplyr, tidyverse, zoo, shiny, leaflet, RColorBrewer, xts, rgdal, here)
+pacman::p_load(dplyr, tidyverse, zoo, shiny, leaflet, RColorBrewer, xts, rgdal, here, data.table)
 
 #OWID data#####
 
-owid_Data<-read.csv(
+owid_Data<-data.table::fread(   
   "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv",#    fileEncoding="UTF-8-BOM", stringsAsFactors = FALSE
 ) %>%
   dplyr::select(
@@ -19,10 +19,12 @@ owid_Data$date<-as.Date(owid_Data$date)
 owid_Data$date7<-as.Date(cut(owid_Data$date,breaks = "1 week",start.on.monday = FALSE))
 
 
-owid_Data[c(
-  "total_cases_per_million", "new_cases_per_million", "total_vaccinations_per_hundred"
-)][is.na(owid_Data[c(
-  "total_cases_per_million", "new_cases_per_million", "total_vaccinations_per_hundred")])] <- 0
+owid_Data[is.na(owid_Data)] <- 0
+
+        # owid_Data[c(
+        #   "total_cases_per_million", "new_cases_per_million", "total_vaccinations_per_hundred"
+        # )][is.na(owid_Data[c(
+        #   "total_cases_per_million", "new_cases_per_million", "total_vaccinations_per_hundred")])] <- 0
 
 #drop anything that starts with OWID_
 removeList<-unique(owid_Data$iso_code[startsWith(owid_Data$iso_code, "OWID_")]) 
